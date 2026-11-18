@@ -91,6 +91,9 @@ table.pct{width:100%;border-collapse:collapse;font-size:13.5px}table.pct td{padd
 .rpe-row span{width:100%}
 .rpe-row button{min-width:40px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font:600 13px Inter,sans-serif;cursor:pointer}
 .rpe-row button:active{background:var(--ac);color:#111}
+.md h2{font-size:17px;margin:16px 0 6px}.md h3{font-size:15.5px;margin:14px 0 6px}.md h4{font-size:14.5px;margin:12px 0 4px}
+.md p{margin:6px 0;line-height:1.55}.md ul,.md ol{margin:4px 0 8px;padding-left:20px;line-height:1.55}.md li{margin:2px 0}
+.md table{margin:8px 0}.md b{color:var(--tx)}
 </style>
 </head>
 <body>
@@ -423,12 +426,12 @@ function weekStats(){const goal=S.settings.weeklyGoal||3,ws=weekStart(new Date()
 function viewHome(){
  const st=weekStats(),pct=Math.min(100,Math.round(100*st.thisW/st.goal));
  const h=new Date().getHours(),saludo=h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';
- if(!S.sessions.length&&!S.routines.length)return`<h1>${saludo} 💪</h1>${watchLiveBanner()}${bodyReminder()}<div class="card"><h2 style="margin-bottom:6px">Bienvenido a GymTrack</h2><p class="muted" style="margin-top:0">Empieza en 3 pasos:</p>
+ if(!S.sessions.length&&!S.routines.length)return`<h1>${saludo} 💪</h1>${watchLiveBanner()}${bodyReminder()}${reportReminder()}<div class="card"><h2 style="margin-bottom:6px">Bienvenido a GymTrack</h2><p class="muted" style="margin-top:0">Empieza en 3 pasos:</p>
  <div class="list-item"><span class="tag ac">1</span><div style="flex:1"><b>Crea tu rutina</b><div class="muted small">Genérala según tu objetivo o ármala a mano.</div></div></div>
  <div class="list-item"><span class="tag ac">2</span><div style="flex:1"><b>Registra tus series</b><div class="muted small">Anota peso y repeticiones, y toca ✓. El descanso se cronometra solo.</div></div></div>
  <div class="list-item"><span class="tag ac">3</span><div style="flex:1"><b>Mira tu progreso</b><div class="muted small">La app te dice cuándo subir de peso y guarda tus récords.</div></div></div>
  <button class="btn full" style="margin-top:12px" data-act="gen-open">✨ Generar mi primera rutina</button><button class="btn ghost full" style="margin-top:8px" data-act="new-routine">Crear rutina a mano</button><button class="btn ghost full" style="margin-top:8px" data-act="start-free">Entrenar sin rutina</button></div>`;
- let html=`<h1>${saludo} 💪</h1>${watchLiveBanner()}${bodyReminder()}
+ let html=`<h1>${saludo} 💪</h1>${watchLiveBanner()}${bodyReminder()}${reportReminder()}
  <div class="card row gap" style="gap:16px"><div class="ring" style="--p:${pct}"><div>${st.thisW}/${st.goal}</div></div><div><b>Meta semanal</b><div class="muted small" style="margin-top:3px">${st.thisW>=st.goal?'¡Meta cumplida esta semana! 🔥':`Te faltan ${st.goal-st.thisW} entrenamiento${st.goal-st.thisW>1?'s':''} esta semana`}</div></div></div>
  <div class="grid3" style="margin-bottom:12px"><div class="stat"><div class="v">${st.streak}</div><div class="l">Racha (semanas)</div></div><div class="stat"><div class="v">${(st.vol/1000).toFixed(1)}t</div><div class="l">Kg esta semana</div></div><div class="stat"><div class="v">${S.sessions.length}</div><div class="l">Entrenos totales</div></div></div>`;
  html+=`<div class="card"><div class="row between"><h3 style="margin:0">Empezar a entrenar</h3><button class="btn sm ghost" data-act="start-free">Libre</button></div>`;
@@ -512,12 +515,12 @@ function viewWorkout(){const a=active;
 /* ---------- PROGRESO ---------- */
 function exHistory(name){return S.sessions.map(s=>{const e=s.exercises.find(x=>x.name===name);if(!e||!e.sets.length)return null;return{date:s.date,e1:Math.max(...e.sets.map(x=>e1rm(x.w,x.r))),maxW:Math.max(...e.sets.map(x=>x.w)),vol:e.sets.reduce((a,x)=>a+x.w*x.r,0)}}).filter(Boolean)}
 function viewProgress(){
- if(!S.sessions.length)return`<h1>Progreso</h1><div class="card empty"><div class="big">📈</div>Cuando registres tus entrenamientos verás aquí tu evolución: fuerza por ejercicio, volumen semanal, récords y balance muscular.</div>`;
+ if(!S.sessions.length)return`<h1>Progreso</h1>${reportCard()}<div class="card empty"><div class="big">📈</div>Cuando registres tus entrenamientos verás aquí tu evolución: fuerza por ejercicio, volumen semanal, récords y balance muscular.</div>`;
  const freq={};S.sessions.forEach(s=>s.exercises.forEach(e=>freq[e.name]=(freq[e.name]||0)+1));
  const exs=Object.keys(freq).sort((a,b)=>freq[b]-freq[a]);if(!ui.progEx||!freq[ui.progEx])ui.progEx=exs[0];
  const hist=exHistory(ui.progEx),first=hist[0],last=hist[hist.length-1],bestE=Math.max(...hist.map(x=>x.e1)),bestW=Math.max(...hist.map(x=>x.maxW));
  const ch=first&&first.e1?Math.round(100*(last.e1-first.e1)/first.e1):0;
- let h=`<h1>Progreso</h1><div class="card"><label>Ejercicio</label><select data-act-change="progEx">${exs.map(n=>`<option ${n===ui.progEx?'selected':''}>${esc(n)}</option>`).join('')}</select>
+ let h=`<h1>Progreso</h1>${reportCard()}<div class="card"><label>Ejercicio</label><select data-act-change="progEx">${exs.map(n=>`<option ${n===ui.progEx?'selected':''}>${esc(n)}</option>`).join('')}</select>
  <div class="grid3" style="margin:12px 0"><div class="stat"><div class="v">${fmtW(Math.round(bestE*10)/10)}</div><div class="l">1RM estimado (kg)</div></div><div class="stat"><div class="v">${fmtW(bestW)}</div><div class="l">Peso máximo (kg)</div></div><div class="stat"><div class="v" style="color:${hist.length<2?'var(--mu)':ch>=0?'var(--ok)':'var(--dg)'}">${hist.length<2?'—':(ch>=0?'+':'')+ch+'%'}</div><div class="l">Cambio de fuerza</div></div></div>
  ${hist.length>1?'<canvas id="chEx"></canvas>':'<div class="muted small">Registra este ejercicio en al menos 2 sesiones para ver la gráfica.</div>'}</div>`;
  h+=`<div class="card"><h3>Volumen semanal (kg levantados)</h3><canvas id="chVol"></canvas></div>`;
@@ -556,7 +559,7 @@ function viewBody(){const B=S.body,E=[...B.entries].sort((a,b)=>a.date<b.date?-1
 /* ---------- MÁS ---------- */
 function viewMore(){return`<h1>Más</h1>
  ${watchCard()}
- <div class="card"><h3>Ajustes</h3><label>Cronómetro de descanso en la web</label><select data-act-change="webRest">${[["auto","Automático: solo si no usas el reloj"],["always","Siempre"],["never","Nunca"]].map(([k,l])=>`<option value="${k}" ${webRestMode()===k?"selected":""}>${l}</option>`).join("")}</select><div style="height:12px"></div><label>Meta de entrenamientos por semana</label><select data-act-change="weeklyGoal">${[1,2,3,4,5,6,7].map(n=>`<option ${n===S.settings.weeklyGoal?'selected':''}>${n}</option>`).join('')}</select>
+ <div class="card"><h3>Ajustes</h3><label>Cronómetro de descanso en la web</label><select data-act-change="webRest">${[["auto","Automático: solo si no usas el reloj"],["always","Siempre"],["never","Nunca"]].map(([k,l])=>`<option value="${k}" ${webRestMode()===k?"selected":""}>${l}</option>`).join("")}</select><div style="height:12px"></div><label>Meta de entrenamientos por semana</label><select data-act-change="weeklyGoal">${[1,2,3,4,5,6,7].map(n=>`<option ${n===S.settings.weeklyGoal?'selected':''}>${n}</option>`).join('')}</select><div style="height:12px"></div><label>Informe de progreso</label><select data-act-change="reportDays"><option value="14" ${reportDays()===14?'selected':''}>Cada 2 semanas (recomendado)</option><option value="7" ${reportDays()===7?'selected':''}>Cada semana</option></select>
  <p class="muted small">${Cloud.user?'Tus datos se guardan de forma privada en tu cuenta y se sincronizan entre dispositivos.':'Sin conexión con tu cuenta: los cambios se guardan en este dispositivo y se subirán solos al reconectar.'}</p></div>
  ${Cloud.user?`<div class="card"><h3>Cuenta</h3><p class="muted small" style="margin-top:-4px">Conectado como <b style="color:var(--tx)">${esc(Cloud.user.email||'')}</b></p>
  <button class="btn ghost full" data-act="export">⬇ Descargar mis datos</button><p class="muted small" style="margin:6px 0 10px">Un archivo con tus rutinas, entrenos, medidas y datos del reloj. Solo descarga: no cambia nada.</p>
@@ -595,13 +598,119 @@ function watchSessHtml(id){const c=ui.wcache&&ui.wcache[id];if(!c)return'';if(c=
  return`<div class="sess-ex" style="margin-top:8px"><b style="color:var(--ac2)">⌚ Reloj</b>: ${fmtDur(w.duration_sec||0)} · ${w.kcal||0} kcal${w.avg_hr?` · pulso medio ${w.avg_hr} (máx ${w.max_hr})`:''}${x.sleepTotalMin?` · sueño previo ${Math.floor(x.sleepTotalMin/60)}h${pad(x.sleepTotalMin%60)}${x.sleepScore?' ('+x.sleepScore+')':''}`:''}</div>`+
   c.sets.map(t=>`<div class="sess-ex" style="padding-left:12px">Serie ${t.set_number}: ${fmtDur(t.duration_sec||0)}${t.avg_hr?` · ${t.avg_hr} lpm (máx ${t.max_hr})`:''}${t.rest_before_sec?` · descanso previo ${fmtDur(t.rest_before_sec)}`:''}${t.rest_hr_drop60!=null?` · recuperó ${t.rest_hr_drop60} lpm`:''}</div>`).join('')}
 
+/* ---------- INFORMES DE PROGRESO (Fase 6) ---------- */
+let REP={loaded:false,loading:false,list:[]};
+const repAvg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+function reportDays(){return LS.get('gym_reportdays',14)===7?7:14}
+async function loadReports(){if(!sb||!Cloud.user||REP.loading)return;REP.loading=true;
+ try{const r=await sb.from('reports').select('id,period_start,period_end,source,content,created_at').order('created_at',{ascending:false}).limit(20);REP.list=chk(r)||[]}
+ catch(e){console.warn('reports',e);REP.list=[]}
+ REP.loading=false;REP.loaded=true;if((ui.tab==='progress'||ui.tab==='home')&&!ui.screen)render()}
+function reportCard(){if(!Cloud.user)return'';if(!REP.loaded)loadReports();
+ const last=REP.list[0],dd=last?Math.floor((Date.now()-new Date(last.created_at))/864e5):null;
+ return`<div class="card"><div class="row between"><h3 style="margin:0">📋 Informes de progreso</h3><span class="tag">${reportDays()===7?'semanal':'cada 2 semanas'}</span></div>
+ <p class="muted small" style="margin:6px 0 10px">${last?`Último: ${fmtDate(last.created_at)} (hace ${dd} día${dd===1?'':'s'}).`:'Aún no tienes informes.'} Prepara tus datos, pégalos en Claude y guarda aquí su respuesta.</p>
+ <button class="btn full" data-act="rep-make">Preparar informe</button>
+ ${REP.list.slice(0,6).map(r=>`<button class="pick" data-act="rep-view" data-id="${esc(r.id)}"><span>${fmtDate(r.created_at)} · ${fmtDate(r.period_start+'T12:00')} – ${fmtDate(r.period_end+'T12:00')}</span><span class="muted small">Ver ›</span></button>`).join('')}</div>`}
+// Recordatorio: si toca (cada 1 o 2 semanas) y hay al menos 3 entrenos nuevos desde el último informe
+function reportReminder(){if(!Cloud.user)return'';if(!REP.loaded){loadReports();return''}
+ const last=REP.list[0],since=last?new Date(last.created_at):new Date(Date.now()-reportDays()*864e5);
+ const n=S.sessions.filter(s=>new Date(s.date)>since).length;
+ if(n<3||(last&&(Date.now()-since)/864e5<reportDays()))return'';
+ return`<div class="card" style="border-color:rgba(198,244,50,.4)"><b>📋 Toca tu informe de progreso</b><div class="muted small" style="margin-top:3px">${n} entrenos desde ${last?'el último informe':'que empezaste'}. Te digo cómo vas y qué hacer la próxima semana.</div><button class="btn sm" style="margin-top:10px" data-act="rep-make">Preparar informe</button></div>`}
+
+const REPORT_PROMPT=`Actúa como mi entrenador personal. Con los datos de arriba, escríbeme un informe en español, claro y breve, en Markdown, con estas secciones:
+1. **Resumen** (3-4 líneas): cómo voy.
+2. **Fuerza y progresión**: qué ejercicios avanzan, cuáles se estancan y por qué puede ser.
+3. **Cuerpo**: tendencia del peso (usa medias, no días sueltos) y de los perímetros, según mi objetivo.
+4. **Recuperación y esfuerzo**: sueño, pulso, descansos, recuperación del pulso y reps en reserva (RIR).
+5. **Plan para la próxima semana**: una tabla con cada ejercicio, peso, series × reps objetivo y descanso; y cualquier cambio de volumen o de días.
+6. **Alertas**: señales de fatiga, estancamiento, poca constancia o datos que parezcan erróneos.
+Notas sobre los datos: "60×8 RIR1" = 60 kg × 8 reps con 1 rep en reserva. Si te faltan datos para concluir algo, dilo en vez de suponer. Si hay un informe anterior, comprueba si seguí sus recomendaciones. Si algo sugiere un riesgo para la salud, recomiéndame consultar a un profesional.`;
+
+async function buildReport(){const days=reportDays(),end=new Date(),start=new Date(end.getTime()-days*864e5),L=[];
+ const inP=d=>new Date(d)>=start;
+ const ss=S.sessions.filter(s=>inP(s.date)).sort(byDate);
+ let W=[],WS=[];
+ if(sb&&Cloud.user){try{
+  const a=await sb.from('watch_sessions').select('id,web_session_id,started_at,duration_sec,sets,avg_hr,max_hr,kcal,context,completed').gte('started_at',start.toISOString()).order('started_at');W=chk(a)||[];
+  if(W.length){const b=await sb.from('watch_sets').select('session_id,set_number,duration_sec,rest_before_sec,rest_hr_drop60,avg_hr,max_hr').in('session_id',W.map(w=>w.id));WS=chk(b)||[]}
+ }catch(e){console.warn('report watch',e)}}
+ if(!REP.loaded)await loadReports();
+ const ctx=((W.slice().reverse().find(w=>w.context&&w.context.age))||{}).context||{};
+ L.push(`# Mis datos de GymTrack · ${fmtDate(start)} – ${fmtDate(end)} (${days} días)`);
+ L.push('## Perfil');
+ L.push(`- ${ctx.age?ctx.age+' años':'Edad no disponible'}${ctx.gender==='male'?' · hombre':ctx.gender==='female'?' · mujer':''}${ctx.heightCm?' · '+ctx.heightCm+' cm':''}${ctx.weightKg?' · '+ctx.weightKg+' kg (perfil del reloj)':''}`);
+ const goals=[...new Set(S.routines.map(r=>r.goal).filter(Boolean))];
+ L.push(`- Objetivo: ${goals.join(', ')||'no indicado'} · meta: ${S.settings.weeklyGoal} entrenos por semana`);
+ if(S.routines.length)L.push(`- Rutinas: ${S.routines.map(r=>r.name+' ('+r.days.map(d=>d.name).join(', ')+')').join('; ')}`);
+ L.push('## Constancia');
+ L.push(`- ${ss.length} entrenos registrados (meta para el periodo: ${Math.round(S.settings.weeklyGoal*days/7)})`);
+ L.push('## Entrenos');
+ if(!ss.length)L.push('- Ningún entreno registrado en la web en este periodo.');
+ ss.forEach(s=>{const w=W.find(x=>x.web_session_id===s.id);
+  L.push(`### ${fmtDate(s.date)} · ${s.dayName} · ${fmtDur(s.durationSec)} · volumen ${Math.round(s.volume||sessVolume(s))} kg`);
+  s.exercises.forEach(e=>L.push(`- ${e.name}: ${e.sets.map(x=>fmtW(x.w)+'×'+x.r+(x.rpe?' RIR'+(10-x.rpe):'')).join(', ')}`));
+  if(s.notes)L.push(`- Notas: ${s.notes}`);
+  if(w){const st=WS.filter(t=>t.session_id===w.id),rests=st.map(t=>t.rest_before_sec).filter(v=>v>0),recs=st.map(t=>t.rest_hr_drop60).filter(v=>v!=null),c=w.context||{};
+   L.push(`- Reloj: ${w.kcal||0} kcal · pulso medio ${w.avg_hr||'—'} / máx ${w.max_hr||'—'}${rests.length?' · descanso medio '+fmtDur(repAvg(rests)):''}${recs.length?' · el pulso bajó de media '+Math.round(repAvg(recs))+' lpm en el primer minuto de descanso':''}${c.sleepTotalMin?' · sueño previo '+Math.floor(c.sleepTotalMin/60)+'h'+pad(c.sleepTotalMin%60)+(c.sleepScore?' (puntuación '+c.sleepScore+')':''):''}`)}});
+ const solo=W.filter(w=>!w.web_session_id&&w.completed);
+ if(solo.length)L.push(`- Entrenos registrados solo en el reloj: ${solo.map(w=>fmtDate(w.started_at)+' ('+fmtDur(w.duration_sec||0)+', '+(w.sets||0)+' series, '+(w.kcal||0)+' kcal)').join('; ')}`);
+ const names=[...new Set(ss.flatMap(s=>s.exercises.map(e=>e.name)))];
+ if(names.length){L.push('## Progreso por ejercicio (1RM estimado, fórmula de Epley)');
+  names.forEach(n=>{const all=exHistory(n),h=all.filter(x=>inP(x.date)),before=all.filter(x=>!inP(x.date)).pop();if(!h.length)return;
+   const a=(before||h[0]).e1,b=h[h.length-1].e1;
+   L.push(`- ${n}: ${fmtW(Math.round(a*10)/10)} → ${fmtW(Math.round(b*10)/10)} kg${a?' ('+(b>=a?'+':'')+Math.round(100*(b-a)/a)+'%)':''} · ${h.length} ${h.length>1?'sesiones':'sesión'} en el periodo`)})}
+ const grp={};ss.forEach(s=>s.exercises.forEach(e=>{const g=GROUP_OF[e.name]||e.group||'Otros';grp[g]=(grp[g]||0)+e.sets.length}));
+ if(Object.keys(grp).length){L.push('## Series por grupo muscular (media por semana)');
+  Object.entries(grp).sort((a,b)=>b[1]-a[1]).forEach(([g,n])=>L.push(`- ${g}: ${Math.round(n/(days/7)*10)/10}`))}
+ L.push('## Cuerpo');
+ const E=S.body.entries.filter(e=>inP(e.date+'T12:00')).sort((a,b)=>a.date<b.date?-1:1),wt=E.filter(e=>e.weight);
+ L.push(wt.length?`- Peso: ${wt.map(e=>e.date.slice(8)+'/'+e.date.slice(5,7)+' '+fmtW(e.weight)+' kg').join(', ')}`:'- Sin pesajes en el periodo.');
+ [...MEAS.map(([k,l])=>[k,l]),['fat','% grasa']].forEach(([k,l])=>{const v=E.filter(e=>e[k]);if(v.length)L.push(`- ${l}: ${v.length>1?v[0][k]+' → '+v[v.length-1][k]:v[0][k]}${k==='fat'?' %':' cm'}`)});
+ if(S.body.goal)L.push(`- Peso meta: ${S.body.goal} kg`);
+ const cs=W.map(w=>w.context).filter(Boolean);
+ if(cs.length){L.push('## Recuperación (datos del reloj)');
+  const sl=cs.map(c=>c.sleepTotalMin).filter(Boolean),hm=cs.map(c=>c.sleepHrMin).filter(Boolean),pai=cs.map(c=>c.paiWeek).filter(v=>v!=null);
+  if(sl.length)L.push(`- Sueño medio la noche antes de entrenar: ${Math.floor(repAvg(sl)/60)}h${pad(Math.round(repAvg(sl)%60))}`);
+  if(hm.length)L.push(`- Pulso mínimo durante el sueño (en orden): ${hm.join(' → ')} lpm`);
+  if(pai.length)L.push(`- PAI semanal (último): ${Math.round(pai[pai.length-1])}`)}
+ const prev=REP.list[0];
+ if(prev){L.push(`## Informe anterior (${fmtDate(prev.created_at)}), para comprobar si seguí tus recomendaciones`);L.push(prev.content.slice(0,3000))}
+ L.push('## Lo que te pido');L.push(REPORT_PROMPT);
+ return{start,end,text:L.join('\n')}}
+
+async function openReportMaker(){ui.modalCb=null;openModal('<h3>📋 Preparar informe</h3><div class="muted small">Juntando tus datos…</div>');
+ const r=await buildReport();ui.repDraft=r;
+ openModal(`<h3>📋 Preparar informe</h3><div class="muted small" style="margin-bottom:10px">${fmtDate(r.start)} – ${fmtDate(r.end)}</div>
+ <div class="card" style="padding:12px"><b>1. Copia tus datos</b><textarea id="rep-out" rows="7" readonly style="margin-top:8px;font-size:12px">${esc(r.text)}</textarea>
+ <div class="grid2" style="margin-top:8px"><button class="btn" data-act="rep-copy">Copiar</button><button class="btn ghost" data-act="rep-open">Abrir Claude ↗</button></div>
+ <div class="muted small" style="margin-top:6px">Pégalo en una conversación nueva con Claude.</div></div>
+ <div class="card" style="padding:12px"><b>2. Pega aquí la respuesta de Claude</b><textarea id="rep-in" rows="7" placeholder="Pega aquí el informe completo…" style="margin-top:8px;font-size:13px"></textarea>
+ <button class="btn full" style="margin-top:8px" data-act="rep-save">Guardar informe</button></div>
+ <button class="btn ghost full" data-act="close">Cerrar</button>`)}
+
+// Muestra el Markdown del informe (títulos, listas, negritas y tablas)
+function md(t){const lines=esc(t).split('\n');let h='',list=null,tbl=[];
+ const inl=x=>x.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[^*])\*(?!\s)([^*]+?)\*/g,'$1<i>$2</i>');
+ const endList=()=>{if(list){h+=`</${list}>`;list=null}};
+ const endTable=()=>{if(tbl.length){h+='<table class="pct">'+tbl.filter(r=>!/^\s*\|?\s*:?-{2,}/.test(r)).map((r,i)=>'<tr>'+r.replace(/^\s*\||\|\s*$/g,'').split('|').map(c=>`<td>${i===0?'<b>'+inl(c.trim())+'</b>':inl(c.trim())}</td>`).join('')+'</tr>').join('')+'</table>';tbl=[]}};
+ for(const ln of lines){let m;
+  if(/^\s*\|.*\|\s*$/.test(ln)){endList();tbl.push(ln);continue}endTable();
+  if((m=ln.match(/^(#{1,4})\s+(.*)/))){endList();const lv=Math.min(4,m[1].length+1);h+=`<h${lv}>${inl(m[2])}</h${lv}>`}
+  else if((m=ln.match(/^\s*[-*•]\s+(.*)/))){if(list!=='ul'){endList();h+='<ul>';list='ul'}h+=`<li>${inl(m[1])}</li>`}
+  else if((m=ln.match(/^\s*\d+[.)]\s+(.*)/))){if(list!=='ol'){endList();h+='<ol>';list='ol'}h+=`<li>${inl(m[1])}</li>`}
+  else if(!ln.trim())endList();
+  else{endList();h+=`<p>${inl(ln)}</p>`}}
+ endList();endTable();return h}
+
 /* ---------- DESCARGAR MIS DATOS (solo lectura) ---------- */
 async function exportData(){toast('Preparando tus datos…');
  const out={app:'gymtrack',version:2,exportedAt:new Date().toISOString(),account:Cloud.user?Cloud.user.email:null,
   routines:S.routines,sessions:S.sessions,body:S.body,settings:Object.assign({},S.settings,{webRest:webRestMode()}),watch:null};
  if(sb&&Cloud.user){try{
   const [ws,wt]=await Promise.all([sb.from('watch_sessions').select('*').order('started_at'),sb.from('watch_sets').select('*').order('set_start')]);
-  out.watch={sessions:chk(ws)||[],sets:chk(wt)||[]}}catch(e){console.warn(e);out.watch={error:'No se pudieron descargar los datos del reloj (sin conexión).'}}}
+  out.watch={sessions:chk(ws)||[],sets:chk(wt)||[]};const rp=await sb.from('reports').select('*').order('created_at');out.reports=chk(rp)||[]}catch(e){console.warn(e);out.watch={error:'No se pudieron descargar los datos del reloj (sin conexión).'}}}
  const blob=new Blob([JSON.stringify(out,null,1)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
  a.href=url;a.download='gymtrack-datos-'+dateKey(new Date())+'.json';document.body.appendChild(a);a.click();
  setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1000);toast('Datos descargados ✓')}
@@ -768,6 +877,18 @@ const A={
  close:()=>closeModal(),
  'au-go':()=>authGo(),
  'w-pair':()=>openPair(),
+ 'rep-make':()=>openReportMaker(),
+ 'rep-copy':()=>{const ta=$('#rep-out');if(!ta)return;const done=()=>toast('Copiado ✓ · ahora pégalo en Claude');
+  try{navigator.clipboard.writeText(ta.value).then(done,()=>{ta.select();document.execCommand('copy');done()})}catch(e){ta.select();document.execCommand('copy');done()}},
+ 'rep-open':()=>{window.open('https://claude.ai/new','_blank','noopener')},
+ 'rep-save':async()=>{const v=($('#rep-in')&&$('#rep-in').value||'').trim(),dr=ui.repDraft;if(!dr)return;
+  if(v.length<80){toast('Pega aquí el informe completo que te dio Claude');return}
+  const r=await sb.from('reports').insert({period_start:dateKey(dr.start),period_end:dateKey(dr.end),source:'manual',content:v.slice(0,60000)});
+  if(r.error){console.warn(r.error);toast('No se pudo guardar. ¿Ejecutaste 06_informes.sql?');return}
+  ui.repDraft=null;closeModal();REP.loaded=false;render();toast('Informe guardado ✓')},
+ 'rep-view':d=>{const r=REP.list.find(x=>x.id===d.id);if(!r)return;ui.modalCb=null;
+  openModal(`<h3>Informe · ${fmtDate(r.created_at)}</h3><div class="muted small">Periodo: ${fmtDate(r.period_start+'T12:00')} – ${fmtDate(r.period_end+'T12:00')}</div><div class="md">${md(r.content)}</div><div class="grid2" style="margin-top:14px"><button class="btn ghost" data-act="rep-del" data-id="${esc(r.id)}" style="color:var(--dg)">Eliminar</button><button class="btn" data-act="close">Cerrar</button></div>`)},
+ 'rep-del':d=>confirmBox('¿Eliminar este informe?',async()=>{const r=await sb.from('reports').delete().eq('id',d.id);if(r.error){toast('No se pudo eliminar');return}REP.loaded=false;render();toast('Informe eliminado')},'Eliminar',true),
  'sess-edit':d=>openSessEdit(d.id),
  'se-addset':d=>{const ex=ui.sedit.exercises[d.ei],l=ex.sets[ex.sets.length-1];ex.sets.push({w:l?l.w:'',r:''});render()},
  'se-rmset':d=>{ui.sedit.exercises[d.ei].sets.splice(+d.si,1);render()},
@@ -849,6 +970,7 @@ document.addEventListener('change',e=>{const t=e.target,d=t.dataset;
  if(d.wk&&active&&(d.wk==='r'||d.wk==='w')){autoDone(+d.ei,+d.si);return}
  if(d.actChange==='progEx'){ui.progEx=t.value;render()}
  else if(d.actChange==='webRest'){LS.set('gym_webrest',t.value);if(!webRestOn())stopRest();toast('Ajuste guardado')}
+ else if(d.actChange==='reportDays'){LS.set('gym_reportdays',+t.value);toast('Ajuste guardado')}
  else if(d.actChange==='weeklyGoal'){S.settings.weeklyGoal=+t.value;saveSettings();toast('Meta actualizada')}
  else if(d.bodyset){const v=num(t.value);S.body[d.bodyset]=v>0?v:null;saveBody();render()}
  else if(d.calc==='2')calc2();
