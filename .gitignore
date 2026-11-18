@@ -1,0 +1,16 @@
+# Otros proyectos y herramientas de esta carpeta (no forman parte de GymTrack)
+.buildtools/
+cleanyourtv/
+
+# Copia original de la web, antes de Supabase
+GymTrack — Rutinas y progreso.html
+
+# Paquetes compilados del reloj y dependencias
+gymtrack-watch/dist/
+*.zab
+node_modules/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini

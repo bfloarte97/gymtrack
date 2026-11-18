@@ -1,0 +1,48 @@
+{
+  "configVersion": "v2",
+  "app": {
+    "appId": 1136695,
+    "appName": "GymTrack",
+    "appType": "app",
+    "version": {
+      "code": 7,
+      "name": "0.9.0"
+    },
+    "icon": "icon.png",
+    "vender": "gymtrack",
+    "description": "Rutina del día, series y descansos sincronizados con GymTrack"
+  },
+  "permissions": [],
+  "runtime": {
+    "apiVersion": {
+      "compatible": "1.0.0",
+      "target": "1.0.1",
+      "minVersion": "1.0.0"
+    }
+  },
+  "targets": {
+    "common": {
+      "module": {
+        "page": {
+          "pages": ["pages/index"]
+        },
+        "app-side": {
+          "path": "app-side/index"
+        },
+        "setting": {
+          "path": "setting/index"
+        }
+      },
+      "platforms": [
+        { "name": "gtr3-pro", "deviceSource": 229 },
+        { "name": "gtr3-pro-w", "deviceSource": 230 }
+      ],
+      "designWidth": 480
+    }
+  },
+  "i18n": {
+    "en-US": { "appName": "GymTrack" },
+    "es-ES": { "appName": "GymTrack" }
+  },
+  "defaultLanguage": "en-US"
+}
