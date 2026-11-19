@@ -17,3 +17,6 @@ desktop.ini
 
 # Script de limpieza (destructivo): se queda solo en este PC
 supabase/LIMPIEZA-datos-de-prueba.sql
+
+# Guía personal (solo en este PC)
+GUIA-GymTrack.html
